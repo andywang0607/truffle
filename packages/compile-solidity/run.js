@@ -15,7 +15,7 @@ async function run(rawSources, options, language = "Solidity") {
   // Ensure sources have operating system independent paths
   // i.e., convert backslashes to forward slashes; things like C: are left intact.
   // we also strip the project root (to avoid it appearing in metadata)
-  // and replace it with "project://"
+  // and replace it with "project:/"
   const {
     sources,
     targets,
@@ -24,7 +24,7 @@ async function run(rawSources, options, language = "Solidity") {
     rawSources,
     options.compilationTargets,
     options.working_directory,
-    "project://"
+    "project:/"
   );
 
   // construct solc compiler input
@@ -258,7 +258,12 @@ function detectErrors({
     );
 
   // extract messages
-  let errors = rawErrors.map(({ formattedMessage }) => formattedMessage).join();
+  let errors = rawErrors.map(
+    ({ formattedMessage }) => formattedMessage.replace(
+      /: File import callback not supported/g, //remove this confusing message suffix
+      ""
+    )
+  ).join();
   const warnings = rawWarnings.map(({ formattedMessage }) => formattedMessage);
 
   if (errors.includes("requires different compiler version")) {
